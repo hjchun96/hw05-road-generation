@@ -5,10 +5,13 @@ uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
 uniform float u_Time;
 uniform int u_MapType;
+uniform float u_ElevationX;
+uniform float u_ElevationY;
+uniform float u_PopulationX;
+uniform float u_PopulationY;
 
 in vec2 fs_Pos;
 out vec4 out_Col;
-
 
 // Voronoi Noise (Modified from http://www.iquilezles.org/www/articles/voronoilines/voronoilines.htm)
 // Hash function taken from http://www.iquilezles.org/www/articles/voronoise/voronoise.htm
@@ -50,70 +53,12 @@ float voronoi(float x, float y, vec2 seed){
   return avg_dist/tot_weight;
 }
 
-// function rgbToHsl(r, g, b) {
-//   r /= 255, g /= 255, b /= 255;
-//
-//   var max = Math.max(r, g, b), min = Math.min(r, g, b);
-//   var h, s, l = (max + min) / 2;
-//
-//   if (max == min) {
-//     h = s = 0; // achromatic
-//   } else {
-//     var d = max - min;
-//     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-//
-//     switch (max) {
-//       case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-//       case g: h = (b - r) / d + 2; break;
-//       case b: h = (r - g) / d + 4; break;
-//     }
-//
-//     h /= 6;
-//   }
-//
-//   return [ h, s, l ];
-// }
-
-// float hue2rgb(float p, float q, float t) {
-//   if (t < 0.0) t += 1.;
-//   if (t > 1.) t -= 1.;
-//   if (t < 1./6.) return p + (q - p) * 6. * t;
-//   if (t < 1./2.) return q;
-//   if (t < 2./3.) return p + (q - p) * (2./3. - t) * 6.;
-//   return p;
-// }
-//
-// vec3 hslToRgb(float h, float s, float l) {
-//
-//   float r, g, b;
-//
-//   if (s == 0.) {
-//     r = g = b = l; // achromatic
-//   } else {
-//
-//     float q;
-//     if (l < 0.5) {
-//       q = l * (1. + s);
-//     } else {
-//       q = l + s - l * s;
-//     }
-//
-//     float p = 2. * l - q;
-//
-//     r = hue2rgb(p, q, h + 1./3.);
-//     g = hue2rgb(p, q, h);
-//     b = hue2rgb(p, q, h - 1./3.);
-//   }
-//
-//   return vec3(r * 255., g * 255., b * 255.);
-// }
-
 void main() {
 
   vec3 col_elev, col_dens, col;
 
   // Calculate Elevation
-  float elevation = voronoi(fs_Pos.x, fs_Pos.y, vec2(1.5, 2.02));
+  float elevation = voronoi(fs_Pos.x, fs_Pos.y, vec2(u_ElevationX, u_ElevationY));
 
   if (elevation > 0.3) { // LAND
     col_elev = vec3(211./255., 216./255., 171./255.);
@@ -122,7 +67,7 @@ void main() {
   }
 
   // Calculate Population Density
-  float density = voronoi(fs_Pos.x, fs_Pos.y, vec2(1.87, 4.24));
+  float density = voronoi(fs_Pos.x, fs_Pos.y, vec2(u_PopulationX, u_PopulationY));
   if (density > 0.5) {
     col_dens = vec3(237./255., 68./255., 30./255.);//hslToRgb(80., 80., 100.);
   } else if (density > 0.35) {

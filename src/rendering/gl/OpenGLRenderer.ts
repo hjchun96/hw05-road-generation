@@ -1,4 +1,4 @@
-import {mat4, vec4, mat3} from 'gl-matrix';
+import {vec2, mat4, vec4, mat3} from 'gl-matrix';
 import Drawable from './Drawable';
 import Camera from '../../Camera';
 import {gl} from '../../globals';
@@ -22,7 +22,7 @@ class OpenGLRenderer {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
-  render(camera: Camera, prog: ShaderProgram, drawables: Array<Drawable>, mapType: number) {
+  render(camera: Camera, prog: ShaderProgram, drawables: Array<Drawable>, mapType: number, elevation: vec2, population: vec2) {
     let model = mat4.create();
     let viewProj = mat4.create();
     let color = vec4.fromValues(1, 0, 0, 1);
@@ -39,6 +39,8 @@ class OpenGLRenderer {
     prog.setViewProjMatrix(viewProj);
     prog.setCameraAxes(axes);
     prog.setMapType(mapType);
+    prog.setElevationSeed(elevation);
+    prog.setPopulationSeed(population);
 
     for (let drawable of drawables) {
       prog.draw(drawable);
